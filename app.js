@@ -208,11 +208,38 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        document.querySelectorAll('.service-row').forEach((target) => {
+            target.addEventListener('mouseenter', () => {
+                const labelText = target.classList.contains('active') ? 'CLOSE' : 'OPEN';
+                setCursorMode('cursor-hover-service', labelText);
+                targetScale = 2.2;
+            });
+            target.addEventListener('mouseleave', () => {
+                setCursorMode('');
+                targetScale = 1.0;
+            });
+            
+            const trigger = target.querySelector('.service-header-trigger');
+            if (trigger) {
+                trigger.addEventListener('click', () => {
+                    setTimeout(() => {
+                        const labelText = target.classList.contains('active') ? 'CLOSE' : 'OPEN';
+                        if (document.body.classList.contains('cursor-hover-service')) {
+                            setCursorMode('cursor-hover-service', labelText);
+                        }
+                    }, 50);
+                });
+            }
+        });
+
         function updateCursor() {
             if (motionQuery.matches) return;
 
             const prevRingX = ringX;
             const prevRingY = ringY;
+
+            let dotTargetX = app.mouse.targetX;
+            let dotTargetY = app.mouse.targetY;
 
             // Real-time magnetic target calculations
             if (app.mouse.isMagneticHover && app.mouse.hoveredElement) {
@@ -221,8 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const centerY = rect.top + rect.height / 2;
                 const deltaX = app.mouse.targetX - centerX;
                 const deltaY = app.mouse.targetY - centerY;
-                app.mouse.ringTargetX = centerX + deltaX * 0.2;
-                app.mouse.ringTargetY = centerY + deltaY * 0.2;
+                
+                // Ring pulls strongly but keeps minor cursor drag
+                app.mouse.ringTargetX = centerX + deltaX * 0.15;
+                app.mouse.ringTargetY = centerY + deltaY * 0.15;
+                
+                // Snaps dot directly to center of magnetic target
+                dotTargetX = centerX;
+                dotTargetY = centerY;
             } else {
                 app.mouse.ringTargetX = app.mouse.targetX;
                 app.mouse.ringTargetY = app.mouse.targetY;
@@ -241,11 +274,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ringX += ringVx;
             ringY += ringVy;
 
-            // Spring math for dot (tight and responsive)
+            // Spring math for dot (snaps to dotTargetX/Y)
             const dotSpring = 0.35;
             const dotDamping = 0.55;
-            let dotAx = (app.mouse.targetX - dotX) * dotSpring;
-            let dotAy = (app.mouse.targetY - dotY) * dotSpring;
+            let dotAx = (dotTargetX - dotX) * dotSpring;
+            let dotAy = (dotTargetY - dotY) * dotSpring;
             dotVx = (dotVx + dotAx) * dotDamping;
             dotVy = (dotVy + dotAy) * dotDamping;
             dotX += dotVx;
@@ -360,6 +393,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 centered.x *= uResolution.x / uResolution.y;
 
                 float t = uTime * 0.03;
+
+                // Procedural drifting light orbs in WebGL shader
+                vec2 orb1 = vec2(sin(t * 0.5) * 0.5 - 0.3, cos(t * 0.4) * 0.3 + 0.2);
+                vec2 orb2 = vec2(cos(t * 0.3) * 0.4 + 0.3, sin(t * 0.45) * -0.3 - 0.2);
+                vec2 orb3 = vec2(sin(t * 0.2) * 0.4 - 0.2, cos(t * 0.35) * -0.4);
+
+                float dist1 = length(centered - orb1);
+                float dist2 = length(centered - orb2);
+                float dist3 = length(centered - orb3);
+
+                float glow1 = smoothstep(0.9, 0.0, dist1);
+                float glow2 = smoothstep(1.0, 0.0, dist2);
+                float glow3 = smoothstep(0.8, 0.0, dist3);
                 
                 vec2 q = vec2(0.0);
                 q.x = fbm(centered * 1.2 + vec2(t, t * 0.4));
@@ -373,13 +419,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Cosmic Palette
                 vec3 bgColor = vec3(0.0196, 0.0196, 0.0196); // matches #050505
-                vec3 deepBlue = vec3(0.02, 0.03, 0.08);
-                vec3 deepPurple = vec3(0.06, 0.02, 0.08);
-                vec3 goldNebula = vec3(0.08, 0.06, 0.03);
+                vec3 deepBlue = vec3(0.02, 0.04, 0.10);
+                vec3 deepPurple = vec3(0.07, 0.03, 0.09);
+                vec3 goldNebula = vec3(0.09, 0.07, 0.04);
 
-                vec3 color = mix(bgColor, deepBlue, f * 0.4);
-                color = mix(color, deepPurple, length(q) * 0.25);
-                color = mix(color, goldNebula, r.x * 0.15);
+                vec3 color = mix(bgColor, deepBlue, f * 0.3);
+                color = mix(color, deepPurple, length(q) * 0.2);
+                color = mix(color, goldNebula, r.x * 0.12);
+
+                // Add drifting ambient lighting layers
+                color += deepBlue * glow1 * 0.28;
+                color += deepPurple * glow2 * 0.25;
+                color += goldNebula * glow3 * 0.22;
 
                 // Mouse influence
                 vec2 mouse = uMouse - 0.5;
@@ -390,6 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Vignette
                 float vignette = 1.0 - length(centered) * 0.8;
                 color *= vignette;
+
+                // Procedural film grain noise
+                float grain = hash(gl_FragCoord.xy + vec2(t * 10.0));
+                color += (grain - 0.5) * 0.018;
 
                 gl_FragColor = vec4(max(color, bgColor), 1.0);
             }
@@ -446,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const particleVertexShader = `
             uniform float uTime;
             uniform float uScroll;
+            uniform vec2 uMouse;
             attribute float aSize;
             attribute float aSpeed;
             attribute float aOpacity;
@@ -453,6 +509,11 @@ document.addEventListener('DOMContentLoaded', () => {
             void main() {
                 vOpacity = aOpacity;
                 vec3 pos = position;
+                
+                // Mouse parallax shift based on depth
+                float depthFactor = (pos.z + 12.0) * 0.08;
+                pos.x += (uMouse.x - 0.5) * 2.0 * depthFactor;
+                pos.y += (uMouse.y - 0.5) * 2.0 * depthFactor;
                 
                 // Organic floating drift
                 pos.x += sin(uTime * 0.06 + pos.y * 0.1) * 0.15 * aSpeed;
@@ -483,7 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fragmentShader: particleFragmentShader,
             uniforms: {
                 uTime: { value: 0 },
-                uScroll: { value: 0 }
+                uScroll: { value: 0 },
+                uMouse: { value: new THREE.Vector2(0.5, 0.5) }
             },
             transparent: true,
             depthWrite: false,
@@ -513,6 +575,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             particleMaterial.uniforms.uTime.value = t;
             particleMaterial.uniforms.uScroll.value = scroll;
+            particleMaterial.uniforms.uMouse.value.set(
+                app.mouse.x / window.innerWidth,
+                1 - app.mouse.y / window.innerHeight
+            );
 
             // Camera mouse parallax shift
             const mx = (app.mouse.x / window.innerWidth - 0.5) * 1.5;
