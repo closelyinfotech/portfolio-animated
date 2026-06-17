@@ -7,7 +7,7 @@
     --color-bg: #050505;
     --color-surface: #0c0d0f;
     --color-text: #e8e4dd;
-    --color-meta: #6b7280;
+    --color-meta: #9ca3af;
     --color-accent: #c5b358;
     --color-border: rgba(232, 228, 221, 0.08);
     --color-border-hover: rgba(232, 228, 221, 0.2);
@@ -93,37 +93,7 @@ body, html {
     opacity: 0.55;
 }
 
-.ambient-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    will-change: transform;
-    opacity: 0.7;
-}
 
-.ambient-orb--1 {
-    width: min(55vw, 520px);
-    height: min(55vw, 520px);
-    top: -8%;
-    left: -10%;
-    background: radial-gradient(circle, var(--color-glow-warm) 0%, transparent 70%);
-}
-
-.ambient-orb--2 {
-    width: min(45vw, 420px);
-    height: min(45vw, 420px);
-    top: 35%;
-    right: -12%;
-    background: radial-gradient(circle, var(--color-glow-cool) 0%, transparent 70%);
-}
-
-.ambient-orb--3 {
-    width: min(50vw, 480px);
-    height: min(50vw, 480px);
-    bottom: -15%;
-    left: 25%;
-    background: radial-gradient(circle, var(--color-glow-accent) 0%, transparent 70%);
-}
 
 .ambient-grain {
     position: absolute;
@@ -221,7 +191,7 @@ body.motion-active .cursor-glow {
     z-index: 9999;
     transform-origin: center center;
     will-change: transform;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 }
 
 .cursor-ring {
@@ -263,8 +233,8 @@ body.cursor-hover-text .cursor-ring {
 }
 
 body.cursor-hover-text .cursor-dot {
-    background-color: #ffffff;
-    mix-blend-mode: difference;
+    opacity: 0 !important;
+    transform: translate3d(0, 0, 0) scale(0) !important;
 }
 
 body.cursor-hover-link .cursor-ring {
@@ -272,10 +242,20 @@ body.cursor-hover-link .cursor-ring {
     background-color: rgba(197, 179, 88, 0.05);
 }
 
+body.cursor-hover-link .cursor-dot {
+    opacity: 0 !important;
+    transform: translate3d(0, 0, 0) scale(0) !important;
+}
+
 body.cursor-hover-project .cursor-ring {
     background-color: #ffffff;
     border-color: transparent;
     mix-blend-mode: difference;
+}
+
+body.cursor-hover-project .cursor-dot {
+    opacity: 0 !important;
+    transform: translate3d(0, 0, 0) scale(0) !important;
 }
 
 body.cursor-hover-project .cursor-label {
@@ -287,9 +267,19 @@ body.cursor-hover-magnetic .cursor-ring {
     background-color: rgba(197, 179, 88, 0.06);
 }
 
+body.cursor-hover-magnetic .cursor-dot {
+    opacity: 0 !important;
+    transform: translate3d(0, 0, 0) scale(0) !important;
+}
+
 body.cursor-hover-cta .cursor-ring {
     border-color: var(--color-text);
     background-color: rgba(232, 228, 221, 0.08);
+}
+
+body.cursor-hover-cta .cursor-dot {
+    opacity: 0 !important;
+    transform: translate3d(0, 0, 0) scale(0) !important;
 }
 
 /* Typography Base Styles */
@@ -355,15 +345,18 @@ body.motion-active .service-header-trigger {
     align-items: center;
     padding: 0 var(--container-padding);
     border-bottom: 1px solid transparent;
-    background-color: rgba(5, 5, 5, var(--header-opacity, 0));
-    backdrop-filter: blur(var(--header-blur, 0px));
-    -webkit-backdrop-filter: blur(var(--header-blur, 0px));
-    transition: border-bottom 0.3s ease, height 0.3s ease;
+    background-color: rgba(5, 5, 5, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: border-bottom 0.3s ease, height 0.3s ease, background-color 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
 
 .nav-header.scrolled {
     border-bottom: 1px solid var(--color-border);
     height: 70px;
+    background-color: rgba(5, 5, 5, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .nav-container {

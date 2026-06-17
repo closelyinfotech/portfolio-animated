@@ -197,10 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
             target.addEventListener('mouseenter', () => {
                 setCursorMode('cursor-hover-magnetic');
                 targetScale = 1.6;
+                app.mouse.isMagneticHover = true;
+                app.mouse.hoveredElement = target;
             });
             target.addEventListener('mouseleave', () => {
                 setCursorMode('');
                 targetScale = 1.0;
+                app.mouse.isMagneticHover = false;
+                app.mouse.hoveredElement = null;
             });
         });
 
@@ -298,37 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initBackground() {
-        app.bg.orbs = document.querySelectorAll('.ambient-orb');
-        const startTime = performance.now();
-
-        function updateAmbient() {
-            if (motionQuery.matches) return;
-
-            const elapsed = (performance.now() - startTime) * 0.001;
-            const scroll = app.lenis ? app.lenis.scroll : 0;
-            const velocity = app.lenis ? app.lenis.velocity : 0;
-            const mx = (app.mouse.x / window.innerWidth - 0.5) * 40;
-            const my = (app.mouse.y / window.innerHeight - 0.5) * 40;
-
-            const orbMotion = [
-                { x: Math.sin(elapsed * 0.3) * 30, y: Math.cos(elapsed * 0.25) * 25 },
-                { x: Math.cos(elapsed * 0.2) * -35, y: Math.sin(elapsed * 0.28) * -20 },
-                { x: Math.sin(elapsed * 0.15) * 20, y: Math.cos(elapsed * 0.22) * -35 }
-            ];
-
-            app.bg.orbs.forEach((orb, i) => {
-                const motion = orbMotion[i] || { x: 0, y: 0 };
-                const factor = (i + 1) * 0.3;
-                const x = motion.x + mx * factor;
-                const y = motion.y + my * factor + scroll * (0.01 + i * 0.005) + velocity * 0.003;
-                orb.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-            });
-
-            app.bg.renderId = requestAnimationFrame(updateAmbient);
-        }
-
-        app.bg.renderId = requestAnimationFrame(updateAmbient);
-
         if (!canUseWebGL()) return;
 
         const canvas = document.getElementById('bg-canvas');
@@ -345,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         app.bg.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
         app.bg.renderer.setSize(width, height);
-        app.bg.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        app.bg.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.0));
 
         const fragmentShader = `
             uniform float uTime;
@@ -373,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 float a = 0.5;
                 vec2 shift = vec2(100.0);
                 mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
-                for (int i = 0; i < 4; ++i) {
+                for (int i = 0; i < 3; ++i) {
                     v += a * noise(p);
                     p = rot * p * 2.0 + shift;
                     a *= 0.5;
@@ -404,9 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 vec3 deepPurple = vec3(0.06, 0.02, 0.08);
                 vec3 goldNebula = vec3(0.08, 0.06, 0.03);
 
-                vec3 color = mix(bgColor, deepBlue, f * 0.7);
-                color = mix(color, deepPurple, length(q) * 0.4);
-                color = mix(color, goldNebula, r.x * 0.25);
+                vec3 color = mix(bgColor, deepBlue, f * 0.4);
+                color = mix(color, deepPurple, length(q) * 0.25);
+                color = mix(color, goldNebula, r.x * 0.15);
 
                 // Mouse influence
                 vec2 mouse = uMouse - 0.5;
@@ -439,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         app.bg.scene.add(backgroundPlane);
 
         // Double-Layered Particle System
-        const particleCount = 1200;
+        const particleCount = 150;
         const positions = new Float32Array(particleCount * 3);
         const sizes = new Float32Array(particleCount);
         const speeds = new Float32Array(particleCount);
@@ -451,16 +424,16 @@ document.addEventListener('DOMContentLoaded', () => {
             positions[i * 3 + 2] = Math.random() * 16 - 12; // Z range [-12, 4]
 
             const z = positions[i * 3 + 2];
-            speeds[i] = 0.3 + Math.random() * 0.7;
+            speeds[i] = 0.1 + Math.random() * 0.2; // much slower drift
 
             if (z < -4) {
-                // Layer 1: Distant Stars
-                sizes[i] = 0.8 + Math.random() * 1.2;
-                opacities[i] = 0.2 + Math.random() * 0.5;
+                // Layer 1: Distant Stars (very small, faint)
+                sizes[i] = 0.4 + Math.random() * 0.5;
+                opacities[i] = 0.15 + Math.random() * 0.2;
             } else {
-                // Layer 2: Cosmic Dust
-                sizes[i] = 2.0 + Math.random() * 3.5;
-                opacities[i] = 0.15 + Math.random() * 0.35;
+                // Layer 2: Cosmic Dust (subtle, soft)
+                sizes[i] = 0.8 + Math.random() * 1.0;
+                opacities[i] = 0.1 + Math.random() * 0.15;
             }
         }
 
@@ -486,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pos.y += cos(uTime * 0.05 + pos.x * 0.1) * 0.15 * aSpeed;
                 
                 // Infinite vertical wrapping on scroll
-                pos.y = mod(pos.y - uScroll * 0.0018 * aSpeed + 15.0, 30.0) - 15.0;
+                pos.y = mod(pos.y - uScroll * 0.0006 * aSpeed + 15.0, 30.0) - 15.0;
                 
                 vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
@@ -501,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 float r = length(gl_PointCoord - vec2(0.5));
                 if (r > 0.5) discard;
                 float intensity = smoothstep(0.5, 0.0, r);
-                gl_FragColor = vec4(1.0, 0.98, 0.95, intensity * vOpacity * 0.8);
+                gl_FragColor = vec4(1.0, 0.98, 0.95, intensity * vOpacity * 0.35);
             }
         `;
 
@@ -575,10 +548,10 @@ document.addEventListener('DOMContentLoaded', () => {
         gsap.to('.flow-reveal', {
             opacity: 1,
             y: 0,
-            duration: 1.1,
-            stagger: 0.12,
+            duration: 0.8,
+            stagger: 0.05,
             ease: 'customEase',
-            delay: 1.1
+            delay: 0.35
         });
 
         gsap.utils.toArray('.section-header, .project-card, .service-row').forEach((el) => {
@@ -658,24 +631,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!isScrolled) {
                     gsap.to(header, {
-                        '--header-blur': '0px',
-                        '--header-opacity': 0,
                         y: 0,
                         duration: 0.3,
                         overwrite: 'auto'
                     });
                     return;
                 }
-
-                const blurAmount = Math.min(12 + Math.abs(velocity) * 0.03, 24);
-                const opacityAmount = Math.max(0.7 - Math.abs(velocity) * 0.0003, 0.4);
-
-                gsap.to(header, {
-                    '--header-blur': `${blurAmount}px`,
-                    '--header-opacity': opacityAmount,
-                    duration: 0.3,
-                    overwrite: 'auto'
-                });
 
                 if (velocity > 150) {
                     gsap.to(header, { y: -80, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
@@ -768,10 +729,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 {
                     y: '0%',
                     rotate: 0,
-                    duration: 1.4,
-                    stagger: 0.02,
+                    duration: 0.8,
+                    stagger: 0.008,
                     ease: 'customEase',
-                    delay: 0.2
+                    delay: 0.05
                 }
             );
         });
@@ -944,11 +905,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 material
             );
 
+            const scroll = app.lenis ? app.lenis.scroll : window.scrollY;
             mesh.userData = {
                 domElement: img,
                 container: img.closest('[data-webgl-image-container]'),
                 material,
-                hoverValue: 0
+                hoverValue: 0,
+                absoluteTop: rect.top + scroll,
+                absoluteLeft: rect.left,
+                width: rect.width,
+                height: rect.height
             };
 
             app.webgl.scene.add(mesh);
@@ -969,9 +935,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             container.addEventListener('mousemove', (e) => {
-                const cardRect = img.getBoundingClientRect();
-                const mouseX = (e.clientX - cardRect.left) / cardRect.width;
-                const mouseY = 1 - (e.clientY - cardRect.top) / cardRect.height;
+                const ud = mesh.userData;
+                const cardScroll = app.lenis ? app.lenis.scroll : window.scrollY;
+                const viewportTop = ud.absoluteTop - cardScroll;
+                const mouseX = (e.clientX - ud.absoluteLeft) / ud.width;
+                const mouseY = 1 - (e.clientY - viewportTop) / ud.height;
                 material.uniforms.uMouse.value.set(mouseX, mouseY);
             });
 
@@ -998,15 +966,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const wWidth = window.innerWidth;
             const wHeight = window.innerHeight;
 
-            app.webgl.meshes.forEach((mesh) => {
-                const img = mesh.userData.domElement;
-                const rect = img.getBoundingClientRect();
+            const scroll = app.lenis ? app.lenis.scroll : window.scrollY;
 
-                mesh.position.x = rect.left - wWidth / 2 + rect.width / 2;
-                mesh.position.y = -rect.top + wHeight / 2 - rect.height / 2;
+            app.webgl.meshes.forEach((mesh) => {
+                const ud = mesh.userData;
+                const viewportTop = ud.absoluteTop - scroll;
+                const viewportLeft = ud.absoluteLeft;
+
+                mesh.position.x = viewportLeft - wWidth / 2 + ud.width / 2;
+                mesh.position.y = -viewportTop + wHeight / 2 - ud.height / 2;
 
                 // Calculate scroll parallax position relative to viewport center
-                const imgCenter = rect.top + rect.height / 2;
+                const imgCenter = viewportTop + ud.height / 2;
                 const relativeY = (imgCenter - wHeight / 2) / wHeight;
                 mesh.material.uniforms.uScrollParallax.value = relativeY;
 
@@ -1092,11 +1063,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 app.webgl.renderer.setSize(width, height);
                 app.webgl.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+                const scroll = app.lenis ? app.lenis.scroll : window.scrollY;
                 app.webgl.meshes.forEach((mesh) => {
                     const img = mesh.userData.domElement;
                     const rect = img.getBoundingClientRect();
                     mesh.geometry.dispose();
                     mesh.geometry = new THREE.PlaneGeometry(rect.width, rect.height, 16, 16);
+
+                    // Update cached bounds
+                    mesh.userData.absoluteTop = rect.top + scroll;
+                    mesh.userData.absoluteLeft = rect.left;
+                    mesh.userData.width = rect.width;
+                    mesh.userData.height = rect.height;
                 });
             }
 
