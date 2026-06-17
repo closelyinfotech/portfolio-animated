@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christian Ulrych &mdash; Creative Frontend Developer & Interactive Motion Engineer</title>
+    
+    <!-- Meta tags for premium SEO -->
+    <meta name="description" content="Award-winning digital portfolio of Christian Ulrych, specializing in custom WebGL shaders, interactive motion systems, and high-performance frontend interfaces.">
+    <meta name="keywords" content="Creative Developer, WebGL, Three.js, GSAP, Interactive Developer, Motion Designer, Portfolio">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Ambient animated background -->
+    <div class="ambient-bg" id="js-ambient-bg" aria-hidden="true">
+        <canvas id="bg-canvas"></canvas>
+        <div class="ambient-orb ambient-orb--1"></div>
+        <div class="ambient-orb ambient-orb--2"></div>
+        <div class="ambient-orb ambient-orb--3"></div>
+        <div class="ambient-grain"></div>
+    </div>
+
+    <!-- Fixed WebGL Overlap Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Custom Cursor elements -->
+    <div class="cursor-glow" id="js-cursor-glow"></div>
+    <div class="cursor-ring" id="js-cursor-ring"></div>
+    <div class="cursor-dot" id="js-cursor-dot"></div>
+    <div class="cursor-label mono-label" id="js-cursor-label"></div>
+
+    <!-- Scroll progress -->
+    <div class="scroll-progress" id="js-scroll-progress" aria-hidden="true">
+        <div class="scroll-progress-track">
+            <div class="scroll-progress-bar" id="js-scroll-progress-bar"></div>
+        </div>
+        <span class="scroll-progress-text mono-label" id="js-scroll-progress-text">0%</span>
+    </div>
+
+    <!-- Lenis Smooth Scroll wrapper -->
+    <div id="smooth-wrapper" class="scroll-container">
+        
+        <!-- Header Navigation -->
+        <header class="nav-header" id="js-header">
+            <div class="nav-container">
+                <a href="#" class="nav-brand magnetic-target" data-magnetic id="nav-brand">
+                    <span>ULRYCH &mdash; DEPT.</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="#work" class="nav-link magnetic-target" data-magnetic id="nav-link-work">WORK</a>
+                    <a href="#services" class="nav-link magnetic-target" data-magnetic id="nav-link-services">SERVICES</a>
+                    <a href="#contact" class="nav-link magnetic-target" data-magnetic id="nav-link-contact">CONTACT</a>
+                </nav>
+                <div class="nav-meta">
+                    <span class="mono-label" id="js-utc-time">UTC+05:30 21:23</span>
+                    <a href="#contact" class="btn-cta magnetic-target" data-magnetic id="nav-cta">HIRE ME</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Layout -->
+        <main class="main-content">
+            
+            <!-- Hero Section -->
+            <section class="hero-section" id="hero">
+                <div class="hero-container">
+                    <div class="hero-top">
+                        <span class="mono-label hero-sub reveal-text" id="hero-subtitle">PORTFOLIO '26 &mdash; CREATIVE CRAFT</span>
+                    </div>
+                    
+                    <div class="hero-title-wrapper">
+                        <h1 class="hero-title reveal-chars" id="hero-title-h1">
+                            Shaping Digital<br>
+                            <span class="italic-title">Emotions</span> Through<br>
+                            Motion & Code.
+                        </h1>
+                    </div>
+
+                    <div class="hero-footer">
+                        <div class="hero-meta-grid">
+                            <div class="meta-item flow-reveal">
+                                <span class="mono-label">LOCATION</span>
+                                <p class="meta-value">PRAGUE / CHENNAI</p>
+                            </div>
+                            <div class="meta-item flow-reveal">
+                                <span class="mono-label">AVAILABILITY</span>
+                                <p class="meta-value">AVAILABLE Q3/Q4 2026</p>
+                            </div>
+                            <div class="meta-item flow-reveal">
+                                <span class="mono-label">CORE FOCUS</span>
+                                <p class="meta-value">WEBGL, MOTION, DESIGN SYSTEMS</p>
+                            </div>
+                        </div>
+                        <div class="hero-scroll-indicator magnetic-target" data-magnetic id="scroll-indicator">
+                            <span class="scroll-line"></span>
+                            <span class="mono-label">SCROLL TO EXPLORE</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Selected Work Grid -->
+            <section class="work-section" id="work">
+                <div class="section-container">
+                    <div class="section-header">
+                        <span class="mono-label">01 / SELECTED WORK</span>
+                        <h2 class="section-title reveal-text" id="work-title">Crafting digital signatures.</h2>
+                    </div>
+
+                    <div class="work-grid">
+                        
+                        <!-- Project 1 -->
+                        <article class="project-card" data-webgl-image-container id="project-01">
+                            <div class="project-image-wrapper">
+                                <img class="project-img" data-webgl-image src="assets/project1.jpg" alt="Aetheris Architectural Portal">
+                            </div>
+                            <div class="project-details">
+                                <div class="project-meta">
+                                    <span class="mono-label">001 &mdash; EDITORIAL</span>
+                                    <span class="mono-label">2026</span>
+                                </div>
+                                <h3 class="project-title">Aetheris</h3>
+                                <p class="project-desc">A digital space celebrating minimal architectural form and light refraction.</p>
+                            </div>
+                        </article>
+
+                        <!-- Project 2 -->
+                        <article class="project-card" data-webgl-image-container id="project-02">
+                            <div class="project-image-wrapper">
+                                <img class="project-img" data-webgl-image src="assets/project2.jpg" alt="Vortex Generative Soundscape">
+                            </div>
+                            <div class="project-details">
+                                <div class="project-meta">
+                                    <span class="mono-label">002 &mdash; WEBGL ART</span>
+                                    <span class="mono-label">2026</span>
+                                </div>
+                                <h3 class="project-title">Vortex</h3>
+                                <p class="project-desc">Real-time generative sound wave visualization powered by shaders and Web Audio.</p>
+                            </div>
+                        </article>
+
+                        <!-- Project 3 -->
+                        <article class="project-card" data-webgl-image-container id="project-03">
+                            <div class="project-image-wrapper">
+                                <img class="project-img" data-webgl-image src="assets/project3.jpg" alt="Chronos Editorial Design">
+                            </div>
+                            <div class="project-details">
+                                <div class="project-meta">
+                                    <span class="mono-label">003 &mdash; PRODUCT</span>
+                                    <span class="mono-label">2025</span>
+                                </div>
+                                <h3 class="project-title">Chronos</h3>
+                                <p class="project-desc">High-end typographic timepiece exploring temporal mechanics and typography.</p>
+                            </div>
+                        </article>
+
+                        <!-- Project 4 -->
+                        <article class="project-card" data-webgl-image-container id="project-04">
+                            <div class="project-image-wrapper">
+                                <img class="project-img" data-webgl-image src="assets/project4.jpg" alt="Kinetic Identity System">
+                            </div>
+                            <div class="project-details">
+                                <div class="project-meta">
+                                    <span class="mono-label">004 &mdash; BRANDING</span>
+                                    <span class="mono-label">2025</span>
+                                </div>
+                                <h3 class="project-title">Kinetic</h3>
+                                <p class="project-desc">A dynamic, motion-driven identity framework built for next-generation tech brands.</p>
+                            </div>
+                        </article>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Accordion Matrix -->
+            <section class="services-section" id="services">
+                <div class="section-container">
+                    <div class="section-header">
+                        <span class="mono-label">02 / EXPERTISE</span>
+                        <h2 class="section-title reveal-text" id="services-title">Capabilities mapped to your goals.</h2>
+                    </div>
+
+                    <div class="services-matrix">
+                        
+                        <!-- Accordion Row 1 -->
+                        <div class="service-row" id="service-01">
+                            <div class="service-header-trigger">
+                                <span class="service-num mono-label">01/</span>
+                                <h3 class="service-name">Interactive Motion Design</h3>
+                                <div class="service-icon">
+                                    <span class="icon-line horizontal"></span>
+                                    <span class="icon-line vertical"></span>
+                                </div>
+                            </div>
+                            <div class="service-content">
+                                <div class="service-inner">
+                                    <p>I design physics-based transitions, organic cursor systems, and immersive scroll experiences. Every layout is calibrated to create emotional impact and capture attention through micro-interactions and layout momentum.</p>
+                                    <ul class="service-tags">
+                                        <li class="mono-label">FLIP animations</li>
+                                        <li class="mono-label">Physics Engines</li>
+                                        <li class="mono-label">GSAP Sequencing</li>
+                                        <li class="mono-label">Custom Easings</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accordion Row 2 -->
+                        <div class="service-row" id="service-02">
+                            <div class="service-header-trigger">
+                                <span class="service-num mono-label">02/</span>
+                                <h3 class="service-name">WebGL &amp; Custom Shader Craft</h3>
+                                <div class="service-icon">
+                                    <span class="icon-line horizontal"></span>
+                                    <span class="icon-line vertical"></span>
+                                </div>
+                            </div>
+                            <div class="service-content">
+                                <div class="service-inner">
+                                    <p>I build custom 3D scenes and graphic pipelines directly in WebGL. Using custom vertex and fragment GLSL shaders, I construct fluid simulations, morphing meshes, displacement liquid maps, and interactive lens-distortion matrices.</p>
+                                    <ul class="service-tags">
+                                        <li class="mono-label">Three.js</li>
+                                        <li class="mono-label">GLSL Shaders</li>
+                                        <li class="mono-label">Liquid Displacement</li>
+                                        <li class="mono-label">GPU Instancing</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accordion Row 3 -->
+                        <div class="service-row" id="service-03">
+                            <div class="service-header-trigger">
+                                <span class="service-num mono-label">03/</span>
+                                <h3 class="service-name">Creative Frontend Engineering</h3>
+                                <div class="service-icon">
+                                    <span class="icon-line horizontal"></span>
+                                    <span class="icon-line vertical"></span>
+                                </div>
+                            </div>
+                            <div class="service-content">
+                                <div class="service-inner">
+                                    <p>Clean semantic markup paired with robust JavaScript logic. I bridge visual design and production-ready code, optimizing layout pipelines, building component designs, and maintaining perfect modularity and structure.</p>
+                                    <ul class="service-tags">
+                                        <li class="mono-label">Modern ES6+</li>
+                                        <li class="mono-label">Semantic HTML5</li>
+                                        <li class="mono-label">Performance Audits</li>
+                                        <li class="mono-label">CSS Grid &amp; Variables</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accordion Row 4 -->
+                        <div class="service-row" id="service-04">
+                            <div class="service-header-trigger">
+                                <span class="service-num mono-label">04/</span>
+                                <h3 class="service-name">Design Systems &amp; Art Direction</h3>
+                                <div class="service-icon">
+                                    <span class="icon-line horizontal"></span>
+                                    <span class="icon-line vertical"></span>
+                                </div>
+                            </div>
+                            <div class="service-content">
+                                <div class="service-inner">
+                                    <p>Establishing digital identities through strong editorial typography, fine-tuned layouts, and cohesive motion languages. I design custom frameworks that scale easily across all viewport ratios and device specifications.</p>
+                                    <ul class="service-tags">
+                                        <li class="mono-label">Typography Systems</li>
+                                        <li class="mono-label">Visual Hierarchy</li>
+                                        <li class="mono-label">Responsive Grid Systems</li>
+                                        <li class="mono-label">Brand Guidelines</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact/Footer Section -->
+            <footer class="footer-section" id="contact">
+                <div class="section-container">
+                    <div class="footer-cta-wrapper">
+                        <span class="mono-label footer-sub">WANT TO CREATE SOMETHING EXCEPTIONAL?</span>
+                        <h2 class="footer-title reveal-text" id="footer-cta-title">Let's create together.</h2>
+                        <a href="mailto:hello@ulrychkristian.cz" class="footer-mail-btn magnetic-target" data-magnetic id="footer-email">
+                            <span>Get In Touch</span>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="footer-bottom">
+                        <div class="footer-col copyright">
+                            <p class="mono-label">&copy; 2026 CHRISTIAN ULRYCH. ALL RIGHTS RESERVED.</p>
+                        </div>
+                        <div class="footer-col links">
+                            <a href="#" class="magnetic-target mono-label" data-magnetic id="footer-link-tw">TWITTER</a>
+                            <a href="#" class="magnetic-target mono-label" data-magnetic id="footer-link-ln">LINKEDIN</a>
+                            <a href="#" class="magnetic-target mono-label" data-magnetic id="footer-link-gh">GITHUB</a>
+                        </div>
+                        <div class="footer-col legal">
+                            <p class="mono-label">DESIGN &amp; DEVELOPMENT BY ULRYCH</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- CDN Script Loads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
